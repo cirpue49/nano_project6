@@ -80,7 +80,8 @@
       }
 
       .circle-legend circle {
-        stroke: #ccc;
+        /*stroke: #ccc;*/
+        stroke: #000;
         stroke-dasharray: 4, 2;
         fill: none;
       }
@@ -132,7 +133,7 @@
             .append("circle");
           
 
-          // Find range of avg column
+          // // Find range of avg column
           var avg_extent = d3.extent(data, function(d) {
               return d['avg'];
           });
@@ -266,7 +267,7 @@
           // Legend 
           var legend = svg.append("g")
               .attr("class", "legend")
-              .attr("transform", "translate(" + (width - 100) + "," + 20 + ")")
+              .attr("transform", "translate(1150,20)")
               .selectAll("g")
               .data(["Big body", "Small body"])
               .enter().append("g");
@@ -333,7 +334,7 @@
                   return d;
               });
 
-          bubble_scale.range([1, 25]);
+          bubble_scale.range([1, 23]);
           
 
 
@@ -345,32 +346,111 @@
               .orient("left"); //default
 
           svg.append('g')
-            .attr('transform', 'translate(1275, 180)')
+            .attr('transform', 'translate(1300, 220)')
             .call(circleKey2);
 
-          // title of circle legend
+
+          // title of circle legend upper
           svg.append("text")
-            .attr("x", 1280)
-            .attr("y", 195)
+            .attr("x", 1305)
+            .attr("y", 170)
+            .attr("class", "text-label")
+            .attr("text-anchor", "middle")
+            .style("font-size", "13px")
+            .text("Size of bubble");
+
+
+          // title of circle legend bottom
+          svg.append("text")
+            .attr("x", 1305)
+            .attr("y", 235)
             .attr("class", "text-label")
             .attr("text-anchor", "middle")
             .style("font-size", "13px")
             .text("Number of Homerun");
 
-                 
 
-          // var circleKey = circleLegend()
-          //     .scale(bubble_scale)
-          //     .tickValues([0, 100, 250, 500])
-          //     .tickFormat(formatCurrencySI)
-          //     .tickPadding(10)
-          //     .orient("left"); //default
 
-          // svg.append('g')
-          //   .attr('transform', 'translate(150, 300)')
-          //   .call(circleKey);
+
+            // regression line for big body size
+            var xLabels = data.map(function (d) {
+              if (d['weight_height'] > 1 ){ return d['avg']; }});
+
+            var xLabels=xLabels.filter(Number);
+            var xSeries = d3.range(1, xLabels.length + 1);
+            var ySeries = data.map(function(d) { return parseFloat(d['HR']); });
+            
+            var ySeries=ySeries.filter(Number);
+            
+            var leastSquaresCoeff = leastSquares(xSeries, ySeries);
+            
+            // apply the reults of the least squares regression
+            var x1 = xLabels[0];
+            var y1 = leastSquaresCoeff[0] + leastSquaresCoeff[1];
+            var x2 = xLabels[xLabels.length - 1];
+            var y2 = leastSquaresCoeff[0] * xSeries.length + leastSquaresCoeff[1];
+            var trendData = [[x1,y1,x2,y2]];
+            
+            var trendline = svg.selectAll(".trendline1")
+                .data(trendData);
+             
+            trendline.enter()
+                .append("line")
+                .attr("class", "trendline")
+                .attr("x1", function(d) { return avg_scale(d[0]); })
+                .attr("y1", function(d) { return count_scale(d[1]); })
+                .attr("x2", function(d) { return avg_scale(d[2]); })
+                .attr("y2", function(d) { return count_scale(d[3]); })
+                .attr("stroke", "red")
+                .attr("stroke-width",3);
+
+
+
+
+            // regression line for small body size
+            var xLabels = data.map(function (d) {
+              if (d['weight_height'] < 1 ){ return d['avg']; }});
+            var xLabels=xLabels.filter(Number);
+            var xSeries = d3.range(1, xLabels.length + 1);
+
+            var leastSquaresCoeff = leastSquares(xSeries, ySeries);
+
+            var x1 = xLabels[0];
+            var y1 = leastSquaresCoeff[0] + leastSquaresCoeff[1];
+            var x2 = xLabels[xLabels.length - 1];
+            var y2 = leastSquaresCoeff[0] * xSeries.length + leastSquaresCoeff[1];
+            var trendData = [[x1,y1,x2,y2]];
+            
+            var trendline = svg.selectAll(".trendline2")
+                .data(trendData);
+
+
+            trendline.enter()
+                .append("line")
+                .attr("class", "trendline")
+                .attr("x1", function(d) { return avg_scale(d[0]); })
+                .attr("y1", function(d) { return count_scale(d[1]); })
+                .attr("x2", function(d) { return avg_scale(d[2]); })
+                .attr("y2", function(d) { return count_scale(d[3]); })
+                .attr("stroke", "blue")
+                .attr("stroke-width",3);
+
+
+            // debugger;
+            svg.append("text")
+            .attr("x", 300)
+            .attr("y", 450)
+            .attr("class", "text-label")
+            .attr("text-anchor", "middle")
+            .style("font-size", "13px")
+            .text("These are regression lines for each body size");
+
+
+
                 
           };
+
+
 
 
       var circleLegend = function() {
@@ -512,6 +592,29 @@
         };
 
 
+      
+
+          function leastSquares(xSeries, ySeries) {
+            var reduceSumFunc = function(prev, cur) { return prev + cur; };
+            
+            var xBar = xSeries.reduce(reduceSumFunc) * 1.0 / xSeries.length;
+            var yBar = ySeries.reduce(reduceSumFunc) * 1.0 / ySeries.length;
+
+            var ssXX = xSeries.map(function(d) { return Math.pow(d - xBar, 2); })
+              .reduce(reduceSumFunc);
+            
+            var ssYY = ySeries.map(function(d) { return Math.pow(d - yBar, 2); })
+              .reduce(reduceSumFunc);
+              
+            var ssXY = xSeries.map(function(d, i) { return (d - xBar) * (ySeries[i] - yBar); })
+              .reduce(reduceSumFunc);
+              
+            var slope = ssXY / ssXX;
+            var intercept = yBar - (xBar * slope);
+            var rSquare = Math.pow(ssXY, 2) / (ssXX * ssYY);
+            
+            return [slope, intercept, rSquare];
+          }
     </script>
   </head>
 <body>
@@ -520,8 +623,14 @@
     Use D3 (not dimple.js) to load the TSV file
     and pass the contents of it to the draw function
   */
+  // d3.csv("data.csv", function(d) {
+  //     // transform data
+  //     if (d['weight_height'] >=1) {
+  //                     d['avg'] = +d['avg'];
+  //                     d['HR'] = +d['HR'];
+  //                             return d;
+  //                 }}, line);
 
-  
 
   d3.csv("data.csv", function(d) {
       // transform data
@@ -529,9 +638,15 @@
       d['HR'] = +d['HR'];
       return d;
   }, draw);
+
+
+  
+      
+
   </script>
 </body>
 </html>
+
 
 <!-- 1, about dot, color, size and opache. -->
 <!-- 2, about interaction easier to see text, phont  -->

@@ -1,5 +1,5 @@
 Summary
-    I used Baseball data and investigated the differences among the performances of the baseball players. Mainly I found two things. First of all, there is a positive correlation between the number of homerun and hitting average, which is explained by the location of plot. Second, those who have relatively big body hit more homerun than small body baseball player, which is explained by the color and size of plot.
+    I used Baseball data and investigated the differences among the performances of the baseball players. Mainly I found two things. First of all, there is a positive correlation between the number of homerun and hitting average, which is explained by the location of plot. Second, depending on body size, the player performance could be different.
 
 Design
     At first, I made scatter plot like, x axis is avg(average), y axis is HR(the number of homerun) and colored plot with habdedness since it is effective to show many plots' relationship. However, this graph only showed nothing except for positive correlation between avg and HR. Furthermore, too many plots deprived the graph from telling other messages. I decided to use bubble graph which represents the number of homerun. I got feedback that it is wierd to use two ways of measurements to represent the number of homerun, which are y axis and the size of bubble. However, it helps us to focus on some plots, which are big sized plots. Also I bring this idea from the Facebook's IPO graph. 
@@ -8,7 +8,9 @@ Design
 
     Also, I did not scale down X axis from 2.0 to 3.5 since this graph have to show positive correlation between hitting average and the number of homerun. 
 
-    From my data visualization, I want to tell two points in baseball data. First, there is a positive correlation between hitting average and the number of homerun. The second point is that bigger sized players more likely to hit homerun. 
+    Furthermore, I added regression lines for each body size. These lines tell us the correlation between body size and player performance. Above 0.255 hitting average, small sized player tend to hit more homerun, but below 0.255 big sized player hit more homerun. 
+
+    From my data visualization, I want to tell two points in baseball data. First, there is a positive correlation between hitting average and the number of homerun. The second point is depeding on body size, the player performance could be different. 
 
 Feedback
     I always asked my friends three questions. First, What do you think about this graph?. I wanted to know first impression of my graph. Second, My messages are properly conveyed or not. My messages are about correlation betweeen number of homerun and correlation between body size and player performance. Third, in order to make better data visualization which convey my messages, what can I improve in my graph. 
